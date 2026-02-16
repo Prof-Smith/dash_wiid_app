@@ -15,7 +15,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 LATEST_PATH = DATA_DIR / "wiid_latest_per_country.csv"
 SUBS_PATH   = DATA_DIR / "student_submissions.csv"
-READ_ONLY   = os.getenv("APP_READONLY", "0") == "1"
+READ_ONLY   = os.getenv("APP_READONLY", "0") == "0"
 
 # One-time seeding from the repo's bundled data/ (read-only) to the writable DATA_DIR
 repo_data = APP_DIR / "data"
@@ -25,7 +25,18 @@ if not LATEST_PATH.exists() and (repo_data / "wiid_latest_per_country.csv").exis
 
 if not SUBS_PATH.exists() and (repo_data / "student_submissions.csv").exists():
     SUBS_PATH.write_bytes((repo_data / "student_submissions.csv").read_bytes())
-    
+
+def save_subs(df: pd.DataFrame):
+    if READ_ONLY:
+        return False, "Read-only mode: saving disabled."
+    try:
+        cols = ["timestamp","student_id","country_iso3","title","summary_md","evidence_links","rating","status"]
+        df = df.reindex(columns=cols)
+        df.to_csv(SUBS_PATH, index=False)
+        return True, f"Saved to {SUBS_PATH}"
+    except Exception as e:
+        return False, f"Error saving: {e}"
+
 # ---- Data loaders ----
 def load_latest():
     latest = pd.read_csv(LATEST_PATH)
