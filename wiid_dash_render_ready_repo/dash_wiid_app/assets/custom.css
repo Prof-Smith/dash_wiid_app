@@ -1,6 +1,0 @@
-
-html, body { height: 100%; margin: 0; }
-#map, #map .dash-graph, #map .js-plotly-plot, #map .plotly { width: 100% !important; max-width: 100% !important; }
-.dash-graph, .js-plotly-plot, .plotly, .main-svg { overflow: hidden !important; }
-#right-panel { background: #f7f7f7; border-left: 1px solid #ddd; padding: 16px; }
-@media (max-width: 992px) { #map, #right-panel { width: 100% !important; } }
