@@ -7,12 +7,25 @@ import dash_bootstrap_components as dbc
 from datetime import datetime
 import plotly.graph_objects as go
 
-APP_DIR = Path(__file__).resolve().parent
-DATA_DIR = APP_DIR / "data"
-LATEST_PATH = DATA_DIR / "wiid_latest_per_country.csv"
-SUBS_PATH  = DATA_DIR / "student_submissions.csv"
-READ_ONLY  = os.getenv("APP_READONLY", "0") == "1"
 
+APP_DIR  = Path(__file__).resolve().parent
+# Use DATA_DIR if provided (e.g., /data when using a Render Disk), otherwise /tmp/submissions (always writable)
+DATA_DIR = Path(os.environ.get("DATA_DIR", "/tmp/submissions"))
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+LATEST_PATH = DATA_DIR / "wiid_latest_per_country.csv"
+SUBS_PATH   = DATA_DIR / "student_submissions.csv"
+READ_ONLY   = os.getenv("APP_READONLY", "0") == "1"
+
+# One-time seeding from the repo's bundled data/ (read-only) to the writable DATA_DIR
+repo_data = APP_DIR / "data"
+
+if not LATEST_PATH.exists() and (repo_data / "wiid_latest_per_country.csv").exists():
+    LATEST_PATH.write_bytes((repo_data / "wiid_latest_per_country.csv").read_bytes())
+
+if not SUBS_PATH.exists() and (repo_data / "student_submissions.csv").exists():
+    SUBS_PATH.write_bytes((repo_data / "student_submissions.csv").read_bytes())
+    
 # ---- Data loaders ----
 def load_latest():
     latest = pd.read_csv(LATEST_PATH)
