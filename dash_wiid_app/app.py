@@ -15,7 +15,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 LATEST_PATH = DATA_DIR / "wiid_latest_per_country.csv"
 SUBS_PATH   = DATA_DIR / "student_submissions.csv"
-READ_ONLY   = os.getenv("APP_READONLY", "0") == "0"
+READ_ONLY   = os.getenv("APP_READONLY", "0") == "1"
 
 # One-time seeding from the repo's bundled data/ (read-only) to the writable DATA_DIR
 repo_data = APP_DIR / "data"
