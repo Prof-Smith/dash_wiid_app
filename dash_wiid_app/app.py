@@ -125,21 +125,6 @@ admin_table = dash_table.DataTable(
 )
 admin_tab = dbc.Container([admin_help, admin_controls, admin_table, dcc.Interval(id="interval-admin-refresh", interval=30_000, n_intervals=0)], fluid=True, className="p-3")
 
-from dash import dcc, html
-
-html.Div([
-    html.Button("Download submissions CSV", id="btn-dl", n_clicks=0),
-    dcc.Download(id="download-csv")
-])
-@app.callback(
-    Output("download-csv", "data"),
-    Input("btn-dl", "n_clicks"),
-    prevent_initial_call=True
-)
-def download_submissions(n):
-    df = load_subs()
-    return dcc.send_data_frame(df.to_csv, "student_submissions.csv", index=False)
-
 form_help = dcc.Markdown("""
 **Student submission (optional):**
 Add your note below. Use Markdown in the summary. Instructor may approve it before featuring.
