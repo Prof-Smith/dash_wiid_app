@@ -123,7 +123,39 @@ admin_table = dash_table.DataTable(
     style_cell={"whiteSpace":"pre-wrap","height":"auto","textAlign":"left"},
     style_table={"overflowX":"auto"}
 )
-admin_tab = dbc.Container([admin_help, admin_controls, admin_table, dcc.Interval(id="interval-admin-refresh", interval=30_000, n_intervals=0)], fluid=True, className="p-3")
+# --- Add near the admin_tab content (after the admin_table and save-status) ---
+from dash import dcc, html  # if not already imported
+
+admin_tab = dbc.Container([
+    admin_help,
+    admin_controls,
+    admin_table,
+    html.Div(id="save-status", className="mt-2"),
+    dcc.Interval(id="interval-admin-refresh", interval=30_000, n_intervals=0),
+
+    html.Hr(),
+    html.Div([
+        html.Button("Download submissions CSV", id="btn-dl", n_clicks=0, className="btn btn-outline-secondary"),
+        dcc.Download(id="download-csv")
+    ], className="mt-3")
+], fluid=True, className="p-3")
+
+from dash import dcc  # ensure this import exists
+
+@app.callback(
+    Output("download-csv", "data"),
+    Input("btn-dl", "n_clicks"),
+    prevent_initial_call=True
+)
+def download_submissions(n_clicks):
+    if not n_clicks:
+        # No download on initial load
+        return dash.no_update
+    # Load from your existing source (Sheets/CSV),
+    # do NOT touch any global state.
+    df = load_subs()
+    # Return a downloadable file; this never writes to disk
+    return dcc.send_data_frame(df.to_csv, "student_submissions.csv", index=False)
 
 form_help = dcc.Markdown("""
 **Student submission (optional):**
