@@ -5,6 +5,7 @@ import plotly.express as px
 from dash import Dash, dcc, html, Input, Output, State, dash_table
 import dash_bootstrap_components as dbc
 from datetime import datetime
+import plotly.graph_objects as go
 
 APP_DIR = Path(__file__).resolve().parent
 DATA_DIR = APP_DIR / "data"
@@ -156,6 +157,7 @@ def featured_md_block(note):
 
 # ---- callbacks ----
 @app.callback(
+    Output("map", "figure"),                      # NEW: update the map figure
     Output("country-facts", "children"),
     Output("student-note", "children"),
     Output("sub-table", "data"),
@@ -164,27 +166,75 @@ def featured_md_block(note):
 )
 def update_country_panel(clickData, _):
     subs = load_subs()
+
+    # --- Build the base choropleth (same as you do at startup) ---
+    base_fig = px.choropleth(
+        latest, locations="c3", color="gini",
+        hover_name="country",
+        hover_data={"c3": False, "gini":":.2f", "year":True, "resource":True,
+                    "scale_detailed":True, "incomegroup":True, "region_wb":True},
+        color_continuous_scale=px.colors.sequential.Plasma,
+        range_color=(latest["gini"].min(), latest["gini"].max()),
+        labels={"gini":"Gini (0–100)"},
+        title="Latest Available Gini by Country (WIID curated)"
+    )
+    base_fig.update_layout(coloraxis_colorbar=dict(title='Gini'))
+
+    # --- Compute the outlined countries list ---
+    # Any submission:
+    submitted_iso = subs["country_iso3"].dropna().str.upper().unique().tolist()
+    # If you prefer approved-only, use this instead:
+    # submitted_iso = subs.loc[subs["status"].str.lower().eq("approved"), "country_iso3"].dropna().str.upper().unique().tolist()
+
+    if submitted_iso:
+        overlay_df = pd.DataFrame({"c3": submitted_iso, "flag": 1})
+
+        # Transparent fill, bold outline
+        overlay = go.Choropleth(
+            locations=overlay_df["c3"],
+            z=overlay_df["flag"],
+            locationmode="ISO-3",
+            colorscale=[[0, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0)"]],  # fully transparent
+            showscale=False,
+            marker_line_color="#10e0e0",   # outline color (cyan)
+            marker_line_width=2.5,
+            hoverinfo="skip",
+            name="Student submissions"
+        )
+        base_fig.add_trace(overlay)
+
+        # Optional helper note
+        base_fig.add_annotation(
+            x=0.01, y=1.02, xref="paper", yref="paper",
+            showarrow=False,
+            text="Outlined countries: student submissions present",
+            font=dict(size=12, color="#10e0e0")
+        )
+
+    # --- Your existing panel logic (unchanged below) ---
     if not clickData:
-        return country_facts_card(None), featured_md_block(None), []
+        return base_fig, country_facts_card(None), featured_md_block(None), []
+
     iso3 = clickData["points"][0]["location"]
-    row = latest.loc[latest["c3"]==iso3].iloc[0].to_dict()
+    row = latest.loc[latest["c3"] == iso3].iloc[0].to_dict()
 
     sub_iso = subs[subs["country_iso3"] == iso3].copy()
+    table_data = []
     if not sub_iso.empty:
         sub_iso["timestamp"] = pd.to_datetime(sub_iso["timestamp"], errors="coerce")
-        table_data = sub_iso.sort_values("timestamp", ascending=False)[["timestamp","student_id","title","rating","status"]].head(12)
+        table_data = sub_iso.sort_values("timestamp", ascending=False)[
+            ["timestamp","student_id","title","rating","status"]
+        ].head(12)
         table_data["timestamp"] = table_data["timestamp"].dt.strftime("%Y-%m-%d %H:%M")
         table_data = table_data.to_dict("records")
-    else:
-        table_data = []
 
     featured = None
-    approved = sub_iso[sub_iso["status"] == "approved"].copy()
+    approved = sub_iso[sub_iso["status"].str.lower() == "approved"].copy()
     if not approved.empty:
         approved["timestamp"] = pd.to_datetime(approved["timestamp"], errors="coerce")
         featured = approved.sort_values("timestamp", ascending=False).iloc[0].to_dict()
 
-    return country_facts_card(row), featured_md_block(featured), table_data
+    return base_fig, country_facts_card(row), featured_md_block(featured), table_data
 
 @app.callback(
     Output("admin-table", "data"),
