@@ -256,4 +256,10 @@ def append_submission(n_clicks, student_id, iso3, title, summary, links, rating,
     return dbc.Alert(msg, color=color)
 
 if __name__ == "__main__":
-    app.run_server(debug=True, host="0.0.0.0", port=8050)
+    import os
+    port = int(os.environ.get("PORT", 8050))   # Render sets PORT at runtime
+    app.run(
+        debug=False,           # Turn off debug on Render
+        host="0.0.0.0",
+        port=port
+    )
