@@ -56,7 +56,11 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.LITERA], title="WIID Map +
 server = app.server
 
 map_panel = dbc.Col(
-    dcc.Graph(id="map", figure=fig_map, config={"responsive": True}, style={"height":"100vh"}),
+    dcc.Graph(
+        id="map",
+        config={"responsive": True},
+        style={"height": "100vh"}
+    ),
     md=8
 )
 
