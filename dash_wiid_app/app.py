@@ -209,8 +209,11 @@ def featured_md_block(note):
     if note is None:
         return dcc.Markdown("_No approved student note yet for this country._")
     md = f"""### {note.get('title','(Untitled)')}
+
 {note.get('summary_md','')}
+
 **Evidence:** {note.get('evidence_links','')}
+
 **Rating:** {note.get('rating','')}/5
 """
     return dcc.Markdown(md)
