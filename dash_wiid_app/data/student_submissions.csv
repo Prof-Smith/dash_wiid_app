@@ -1,0 +1,28 @@
+timestamp,student_id,country_iso3,title,summary_md,evidence_links,rating,status
+2/17/2026 12:10,InstructorTest,BRA,Inequality Trends in Brazil (2012â€“2023),"Brazil’s measured income inequality has fallen modestly over the past decade. 
+WIID’s latest estimate (Gini = 48, reference year 2020-2022 depending on series) 
+places Brazil among the most unequal countries globally, but below its early-2000s peak. 
+
+### Key Drivers of Change
+- **Expansion of social transfers:** Bolsa Familia and other cash-transfer programs 
+  improved inequality-adjusted incomes among rural and very poor households.
+- **Labor market shifts:** Rising formal employment between 2012-2018 contributed 
+  to narrowing wage gaps.
+- **COVID-19 shock and recovery:** Emergency Aid temporarily lowered measured 
+  inequality in 2020, but effects were uneven and partially reversed by 2022.
+
+### Measurement Considerations
+- Brazil’s inequality figures vary depending on whether **income** or 
+  **consumption** is used, and whether values are **per capita** or **equivalized**.
+- Survey-to-survey differences (PNAD-C vs. household budget surveys) can shift 
+  estimates, so trends should be interpreted with caution.
+
+Overall, Brazil shows slow but meaningful progress driven by redistribution programs 
+and structural changes in the labor market, though high inequality persists in both 
+regional and racial dimensions. capita** or **equivalized**.
+- Surveyâ€‘toâ€‘survey differences (PNADâ€‘C vs. household budget surveys) can shift 
+  estimates, so trends should be interpreted with caution.
+
+Overall, Brazil shows slow but meaningful progress driven by redistribution programs 
+and structural changes in the labor market, though high inequality persists in both 
+regional and racial dimensions.",,5,approved
