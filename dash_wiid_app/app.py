@@ -1,41 +1,17 @@
 import os
 from pathlib import Path
-import pandas as pd
-import plotly.express as px
-from dash import Dash, dcc, html, Input, Output, State, dash_table
-import dash_bootstrap_components as dbc
-from datetime import datetime
-import plotly.graph_objects as go
-
 
 APP_DIR  = Path(__file__).resolve().parent
-# Use DATA_DIR if provided (e.g., /data when using a Render Disk), otherwise /tmp/submissions (always writable)
+
+# Map data: always read from repo copy so a GitHub update shows on next deploy
+WIID_PATH = APP_DIR / "data" / "wiid_latest_per_country.csv"
+
+# Submissions: writable path (/tmp/submissions by default; or /data if you add a Render Disk)
 DATA_DIR = Path(os.environ.get("DATA_DIR", "/tmp/submissions"))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
+SUBS_PATH = DATA_DIR / "student_submissions.csv"
 
-LATEST_PATH = DATA_DIR / "wiid_latest_per_country.csv"
-SUBS_PATH   = DATA_DIR / "student_submissions.csv"
-READ_ONLY   = os.getenv("APP_READONLY", "0") == "1"
-
-# One-time seeding from the repo's bundled data/ (read-only) to the writable DATA_DIR
-repo_data = APP_DIR / "data"
-
-if not LATEST_PATH.exists() and (repo_data / "wiid_latest_per_country.csv").exists():
-    LATEST_PATH.write_bytes((repo_data / "wiid_latest_per_country.csv").read_bytes())
-
-if not SUBS_PATH.exists() and (repo_data / "student_submissions.csv").exists():
-    SUBS_PATH.write_bytes((repo_data / "student_submissions.csv").read_bytes())
-
-def save_subs(df: pd.DataFrame):
-    if READ_ONLY:
-        return False, "Read-only mode: saving disabled."
-    try:
-        cols = ["timestamp","student_id","country_iso3","title","summary_md","evidence_links","rating","status"]
-        df = df.reindex(columns=cols)
-        df.to_csv(SUBS_PATH, index=False)
-        return True, f"Saved to {SUBS_PATH}"
-    except Exception as e:
-        return False, f"Error saving: {e}"
+READ_ONLY = os.getenv("APP_READONLY", "0") == "1"
 
 # ---- Data loaders ----
 def load_latest():
