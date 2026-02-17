@@ -1,0 +1,5 @@
+timestamp,student_id,country_iso3,title,summary_md,evidence_links,rating,status
+2026-02-17T14:43:30Z,s001,ARG,Inequality in Argentina (2018–2023),"## ARG inequality
+Gini around ~40–43; macro instability and segmented labor markets are key drivers.",https://example.com/arg-chart ; https://example.com/arg-note,4,approved
+2026-02-17T14:43:30Z,s002,BEL,Belgium: Persistently low inequality,Belgium remains in the high-20s on net-income Gini; transfers matter.,https://example.com/bel-chart,4,approved
+2026-02-17T14:43:30Z,s003,BGD,Bangladesh: mind the concept,Reported series mixes income/consumption; compare carefully.,https://example.com/bgd-note,3,pending
