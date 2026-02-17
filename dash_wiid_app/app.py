@@ -13,6 +13,32 @@ SUBS_PATH = DATA_DIR / "student_submissions.csv"
 
 READ_ONLY = os.getenv("APP_READONLY", "0") == "1"
 
+import pandas as pd
+
+EXPECTED_COLS = ["country", "c3", "year", "gini", "resource", "scale_detailed", "incomegroup", "region_wb"]
+
+def load_wiid_latest(path: Path) -> pd.DataFrame:
+    # Try comma first; fall back to semicolon if we see only 1 column
+    df = pd.read_csv(path)
+    if df.shape[1] == 1:
+        df = pd.read_csv(path, sep=';')
+    # Normalize headers
+    df.columns = [c.strip().lower() for c in df.columns]
+    # Check required columns
+    missing = [c for c in EXPECTED_COLS if c not in df.columns]
+    if missing:
+        raise ValueError(f"WIID CSV missing required columns: {missing}. "
+                         f"Ensure header is: {', '.join(EXPECTED_COLS)}")
+    # Coerce types
+    df["c3"] = df["c3"].astype(str).str.upper()
+    df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
+    df["gini"] = pd.to_numeric(df["gini"], errors="coerce")
+    # Filter to rows we can plot
+    df = df.dropna(subset=["c3","year","gini"])
+    return df[EXPECTED_COLS]
+
+latest = load_wiid_latest(WIID_PATH)
+
 # ---- Data loaders ----
 def load_latest():
     latest = pd.read_csv(LATEST_PATH)
