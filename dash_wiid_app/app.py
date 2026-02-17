@@ -133,20 +133,20 @@ admin_controls = dbc.Row([
     dbc.Col(
         dbc.Badge("Read-only", color="secondary", className="me-2")
         if READ_ONLY else dbc.Badge("Writable", color="success", className="me-2"),
-        md="auto"),
-    dbc.Col(
-        dbc.Button("Save Changes", id="btn-save", color="primary",
-                   n_clicks=0, disabled=READ_ONLY),
-        md="auto"),
+        md="auto"
+    ),
+    dbc.Col(dbc.Button("Save Changes", id="btn-save", color="primary",
+                       n_clicks=0, disabled=READ_ONLY), md="auto"),
     dbc.Col(html.Div(id="save-status", className="ms-2"), md="auto")
 ], className="mb-2")
 
 admin_table = dash_table.DataTable(
     id="admin-table",
-    columns=[{"name": c, "id": c, "editable": True} for c in SUB_COLS],
+    columns=[{"name": c, "id": c, "editable": True} for c in
+             ["timestamp","student_id","country_iso3","title","summary_md","evidence_links","rating","status"]],
     page_size=10, editable=True, row_deletable=False,
-    style_cell={"whiteSpace": "pre-wrap", "height": "auto", "textAlign": "left"},
-    style_table={"overflowX": "auto"}
+    style_cell={"whiteSpace":"pre-wrap","height":"auto","textAlign":"left"},
+    style_table={"overflowX":"auto"}
 )
 
 admin_tab = dbc.Container([
@@ -156,3 +156,9 @@ admin_tab = dbc.Container([
     dcc.Interval(id="interval-admin-refresh", interval=30_000, n_intervals=0),
 
     html.Hr(),
+    html.Div([
+        html.Button("Download submissions CSV", id="btn-dl", n_clicks=0,
+                    className="btn btn-outline-secondary"),
+        dcc.Download(id="download-csv")
+    ], className="mt-3")
+], fluid=True, className="p-3")
