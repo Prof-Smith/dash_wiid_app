@@ -27,6 +27,16 @@ READ_ONLY = os.getenv("APP_READONLY", "0") == "1"
 print(f"[BOOT] WIID_PATH={WIID_PATH}  DATA_DIR={DATA_DIR} "
       f"writable={os.access(DATA_DIR, os.W_OK)}  READ_ONLY={READ_ONLY}")
 
+# --- Seed student submissions once from the repo copy (if the runtime copy is missing) ---
+REPO_SUBS = APP_DIR / "data" / "student_submissions.csv"
+if not SUBS_PATH.exists() and REPO_SUBS.exists():
+    try:
+        SUBS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        SUBS_PATH.write_bytes(REPO_SUBS.read_bytes())
+        print(f"[BOOT] Seeded submissions from {REPO_SUBS} -> {SUBS_PATH}")
+    except Exception as e:
+        print(f"[BOOT] Could not seed submissions: {e}")
+
 # ------------------------------------------------------------------------------------
 # Load WIID map snapshot (validated)
 # ------------------------------------------------------------------------------------
